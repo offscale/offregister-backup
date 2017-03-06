@@ -1,3 +1,4 @@
+from functools import partial
 from itertools import imap
 from os import path
 from tempfile import gettempdir
@@ -9,10 +10,9 @@ def gen_local_path(kwargs):
     if kwargs['LOCAL_PATH'] == '$TMPDIR':
         kwargs['LOCAL_PATH'] = gettempdir()  # e.g.: for Windows
     if kwargs.get('LOCAL_PATH.append'):
-        print 'kwargs =', kwargs
         for p in kwargs['LOCAL_PATH.append']:
             if p == '$DNS_NAME':
-                p = kwargs['dns_name']
+                p = kwargs['domain']
             kwargs['LOCAL_PATH'] = path.join(kwargs['LOCAL_PATH'], p)
 
 
@@ -26,15 +26,19 @@ def backup0(*args, **kwargs):
 def process(run_cmd, kwargs):
     run_out = map(sudo, kwargs['sudo']['before']) if 'sudo' in kwargs and 'before' in kwargs['sudo'] else []
     if 'run' in kwargs and 'before' in kwargs['run']:
-        run_out += map(run, kwargs['run']['before'])
-    backup_out = tuple(imap(lambda remote_path: run_cmd(remote_path=remote_path,
-                                                        local_path=kwargs['LOCAL_PATH'],
-                                                        use_sudo=kwargs.get('use_sudo', False),
-                                                        temp_dir=kwargs.get('temp_dir', '')),
+        run_out += map(partial(run, use_sudo=kwargs.get('use_sudo', False)), kwargs['run']['before'])
+    backup_out = tuple(imap(lambda remote_path: run_cmd(
+        remote_path=remote_path,
+        local_path=path.join(
+            kwargs['LOCAL_PATH'],
+            remote_path[remote_path.rfind('/') + 1:] if 'flatten' in kwargs else remote_path.replace('/', path.sep)),
+        use_sudo=kwargs.get('use_sudo', False),
+        temp_dir=kwargs.get('temp_dir', '')),
                             kwargs['REMOTE_PATHS']))
     for k in 'run', 'sudo':
         if k in kwargs and 'after' in kwargs[k]:
-            run_out += map(sudo if k == 'sudo' else run, kwargs[k]['after'])
+            run_out += map(sudo if k == 'sudo' else partial(run, use_sudo=kwargs.get('use_sudo', False)),
+                           kwargs[k]['after'])
     return backup_out, run_out
 
 
