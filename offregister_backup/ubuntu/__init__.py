@@ -9,6 +9,7 @@ from fabric.operations import put, get, sudo, run
 if version[0] == "2":
     from itertools import imap as map
 
+
 def gen_local_path(kwargs):
     if kwargs["LOCAL_PATH"] == "$TMPDIR":
         kwargs["LOCAL_PATH"] = gettempdir()  # e.g.: for Windows
