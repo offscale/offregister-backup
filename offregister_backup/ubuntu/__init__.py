@@ -1,10 +1,13 @@
 from functools import partial
 
 from os import path
+from sys import version
 from tempfile import gettempdir
 
 from fabric.operations import put, get, sudo, run
 
+if version[0] == "2":
+    from itertools import imap as map
 
 def gen_local_path(kwargs):
     if kwargs["LOCAL_PATH"] == "$TMPDIR":
