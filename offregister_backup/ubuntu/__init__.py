@@ -1,10 +1,9 @@
 from functools import partial
-
 from os import path
 from sys import version
 from tempfile import gettempdir
 
-from fabric.operations import put, get, sudo, run
+from fabric.operations import get, put, run, sudo
 
 if version[0] == "2":
     from itertools import imap as map
