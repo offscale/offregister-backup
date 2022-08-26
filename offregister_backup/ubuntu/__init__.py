@@ -3,7 +3,7 @@ from os import path
 from sys import version
 from tempfile import gettempdir
 
-from fabric.operations import get, put, run, sudo
+from fabric.operations import get, run, sudo
 
 if version[0] == "2":
     from itertools import imap as map
@@ -42,8 +42,8 @@ def process(run_cmd, kwargs):
     backup_out = tuple(
         map(
             lambda remote_path: run_cmd(
-                remote_path=remote_path,
-                local_path=path.join(
+                remote=remote_path,
+                local=path.join(
                     kwargs["LOCAL_PATH"],
                     remote_path[remote_path.rfind("/") + 1 :]
                     if "flatten" in kwargs
@@ -70,12 +70,12 @@ def process(run_cmd, kwargs):
 
 def restore1(*args, **kwargs):
     gen_local_path(kwargs)
-    put(
-        remote_path=kwargs["REMOTE_PATH"],
-        local_path=kwargs["LOCAL_PATH"],
+    c.put(
+        remote=kwargs["REMOTE_PATH"],
+        local=kwargs["LOCAL_PATH"],
         use_sudo=kwargs.get("use_sudo", False),
         temp_dir=kwargs.get("temp_dir", ""),
-        mirror_local_mode=kwargs.get("mirror_local_mode", False),
+        preserve_mode=kwargs.get("preserve_mode", False),
         mode=kwargs.get("mode"),
         use_glob=kwargs.get("use_glob", True),
     )
