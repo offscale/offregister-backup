@@ -19,9 +19,9 @@ def gen_local_path(kwargs):
             kwargs["LOCAL_PATH"] = path.join(kwargs["LOCAL_PATH"], p)
 
 
-def backup0(*args, **kwargs):
-    gen_local_path(kwargs)
-    backup_out, run_out = process(get, kwargs)
+def backup0(c, *args, **kwargs):
+    gen_local_path(c, kwargs)
+    backup_out, run_out = process(c, get, kwargs)
     return {kwargs["LOCAL_PATH"]: (run_out, backup_out)}
 
 
@@ -68,7 +68,7 @@ def process(run_cmd, kwargs):
     return backup_out, run_out
 
 
-def restore1(*args, **kwargs):
+def restore1(c, *args, **kwargs):
     gen_local_path(kwargs)
     c.put(
         remote=kwargs["REMOTE_PATH"],
